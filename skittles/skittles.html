@@ -605,6 +605,57 @@
     gwd.current = 1;
     gwd.itemTransition = 'transition: all 0.5s ease-in-out;';
     gwd.canTap = true;
+    let myAni;
+    let initAni;
+    let autoAnimationCount = 1;
+    window.autoAnimateNextSlide = function() {
+      myAni = setTimeout(function() {
+        if (!window.userInteracted && autoAnimationCount < 4) {
+          autoAnimationCount++;
+          gwd.canTap = false;
+          gwd.actions.events.setInlineStyle(`slide_${gwd.current}`, `${gwd.itemTransition} left:-101%; opacity: 0`);
+          gwd.actions.events.setInlineStyle(`bg_${gwd.current}`, `${gwd.itemTransition } opacity: 0`);
+
+
+          gwd.current++;
+          gwd.current = gwd.current > 3 ? 1 : gwd.current;
+          gwd.actions.events.setInlineStyle(`slide_${gwd.current}`, 'transition:all 0s; left:101%;');
+          gwd.actions.events.setInlineStyle(`bg_${gwd.current}`, `${gwd.itemTransition } opacity: 0`);
+
+
+          setTimeout(() => {
+            gwd.actions.events.setInlineStyle(`slide_${gwd.current}`, `${gwd.itemTransition } left:0; opacity: 1`);
+            gwd.actions.events.setInlineStyle(`bg_${gwd.current}`, `${gwd.itemTransition} opacity: 1`);
+
+          }, 100);
+
+          setTimeout(() => {
+            gwd.canTap = true;
+      }, 500);
+
+          window.autoAnimateNextSlide();
+        }
+      }, 2000);
+
+      if (autoAnimationCount > 3) {
+        console.log('auto_animation_complete', 'animation_complete');
+      }
+    }
+
+
+    document.getElementById("tap-left").addEventListener("action", haltFunction);
+    document.getElementById("tap-right").addEventListener("action", haltFunction);
+
+    function haltFunction() {
+      clearTimeout(myAni);
+      clearTimeout(initAni);
+    }
+
+    /// CALL CAROUSEL AUTO ANIMATION
+
+    initAni = setTimeout(function() {
+      window.autoAnimateNextSlide();
+    }, 1000);
     const skittles = document.querySelectorAll('.skittle');
 
     skittles.forEach(item => {
